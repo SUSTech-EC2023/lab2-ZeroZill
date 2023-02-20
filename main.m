@@ -1,8 +1,12 @@
 objective = @noisyQuartic; % Minimization
 dimension = 30;
+numRun = 10;
 lower_bound = -1.28 * ones(1,dimension);
 upper_bound = 1.28 * ones(1,dimension);
 T = 500000;
+allFitness = [];
+
+for run = 1:numRun
 nbGen = 0; % generation counter
 nbEval = 0; % evaluation counter
 bestSoFarFit = inf; % best-so-far fitness value
@@ -49,14 +53,14 @@ for i = 1:populationSize/2
         parentIndexes = [parentIndexes, index];
     end
     % recombination method
-    [offspring(2*i-1,:), offspring(2*i,:)] = your_recombination_operator(population(parentIndexes(1),:), population(parentIndexes(2),:), recombination_weight);
+    [offspring(2*i-1,:), offspring(2*i,:)] = recombination_operator(population(parentIndexes(1),:), population(parentIndexes(2),:), recombination_weight);
 end
 % Mutation
 %% TODO
 mutation_rate = 1/dimension;
 for i = 1:populationSize
     % mutation method
-    offspring(i,:) = your_mutation_operator(offspring(i,:),mutation_rate, lower_bound, upper_bound);
+    offspring(i,:) = mutation_operator(offspring(i,:),mutation_rate, lower_bound, upper_bound);
     offspring_fitness(i) = objective(offspring(i,:));
 end
 
@@ -73,12 +77,19 @@ population = offspring;
 fitness = offspring_fitness;
 fitness_gen = [fitness_gen, bestSoFarFit];
 fitness_pop = [fitness_pop, min(fitness)];
+
 end
-bestSoFarFit
-bestSoFarSolution
+allFitness = [allFitness bestSoFarFit];
+%{
+bestSoFarFit;
+bestSoFarSolution;
 
 figure,plot(fitness_gen,'b') 
 title('Fitness\_Gen')
 
 figure,plot(fitness_pop,'b') 
 title('Fitness\_Pop')
+%}
+end
+
+disp(['mean fitness: ' mean(allFitness)]);
